@@ -1,12 +1,10 @@
-package com.yangyh.flink.java.demo01.wordcount;
+package com.yangyh.flink.java.sample.wordcount;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.api.java.operators.FlatMapOperator;
-import org.apache.flink.api.java.operators.MapOperator;
 import org.apache.flink.api.java.operators.ReduceOperator;
 import org.apache.flink.api.java.operators.UnsortedGrouping;
 import org.apache.flink.util.Collector;
@@ -28,24 +26,21 @@ public class WordCount2 {
 
         DataSource<String> lines = env.readTextFile("./data/words");
 
-        FlatMapOperator<String, String> words = lines.flatMap(new FlatMapFunction<String, String>() {
+
+        FlatMapOperator<String, MyInfo> myInfoFlatMapOperator = lines.flatMap(new FlatMapFunction<String, MyInfo>() {
             @Override
-            public void flatMap(String value, Collector<String> out) throws Exception {
-                for (String word : value.split(" ")) {
-                    out.collect(word);
+            public void flatMap(String line, Collector<MyInfo> collector) throws Exception {
+                String[] words = line.split(" ");
+                for (String word : words) {
+                    collector.collect(new MyInfo(word, 1));
                 }
+
             }
         });
 
-        MapOperator<String, MyInfo> myInfos = words.map(new MapFunction<String, MyInfo>() {
-            @Override
-            public MyInfo map(String word) throws Exception {
-                return new MyInfo(word, 1);
-            }
-        });
+        UnsortedGrouping<MyInfo> myInfoGroup = myInfoFlatMapOperator.groupBy("word");
 
-        UnsortedGrouping<MyInfo> groupBy = myInfos.groupBy("word");
-        ReduceOperator<MyInfo> reduce = groupBy.reduce(new ReduceFunction<MyInfo>() {
+        ReduceOperator<MyInfo> reduce = myInfoGroup.reduce(new ReduceFunction<MyInfo>() {
             @Override
             public MyInfo reduce(MyInfo value1, MyInfo value2) throws Exception {
                 return new MyInfo(value1.getWord(), value1.getCount() + value2.getCount());

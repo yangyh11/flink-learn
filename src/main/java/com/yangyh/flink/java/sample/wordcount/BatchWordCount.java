@@ -1,18 +1,15 @@
-package com.yangyh.flink.java.demo01.wordcount;
+package com.yangyh.flink.java.sample.wordcount;
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.AggregateOperator;
 import org.apache.flink.api.java.operators.DataSource;
 import org.apache.flink.api.java.operators.FlatMapOperator;
-import org.apache.flink.api.java.operators.MapOperator;
 import org.apache.flink.api.java.operators.SortPartitionOperator;
 import org.apache.flink.api.java.operators.UnsortedGrouping;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.core.fs.FileSystem.WriteMode;
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.util.Collector;
 
 /**
@@ -39,7 +36,7 @@ import org.apache.flink.util.Collector;
  *      3.env.execute()触发以上流程执行。【print、count、collect自带触发功能，不需要env.execute()】
  * 6.Flink批数据指定虚拟的key，使用groupBy，Flink流式处理中指定虚拟的key使用keyBy
  */
-public class WordCount {
+public class BatchWordCount {
 
     public static void main(String[] args) throws Exception {
 
@@ -48,20 +45,14 @@ public class WordCount {
 
         DataSource<String> dataSource = env.readTextFile("./data/words");
 
-        FlatMapOperator<String, String> words = dataSource.flatMap(new FlatMapFunction<String, String>() {
+        FlatMapOperator<String, Tuple2<String, Integer>> map = dataSource.flatMap(new FlatMapFunction<String, Tuple2<String, Integer>>() {
             @Override
-            public void flatMap(String line, Collector<String> out) throws Exception {
-                String[] split = line.split(" ");
-                for (String word : split) {
-                    out.collect(word);
+            public void flatMap(String line, Collector<Tuple2<String, Integer>> collector) throws Exception {
+                String[] words = line.split(" ");
+                for (String word : words) {
+                    collector.collect(new Tuple2<>(word, 1));
                 }
-            }
-        });
 
-        MapOperator<String, Tuple2<String, Integer>> map = words.map(new MapFunction<String, Tuple2<String, Integer>>() {
-            @Override
-            public Tuple2<String, Integer> map(String word) throws Exception {
-                return new Tuple2<>(word, 1);
             }
         });
 
