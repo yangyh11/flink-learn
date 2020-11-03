@@ -23,7 +23,7 @@ object StreamWordCount {
       .keyBy(0) // 分组算子
       .sum(1) // 聚合累加算子
 
-    // 5.打印结果
+    // 5.打印结果(Sink)
     wordAndCount.print()
 
     // 6.启动流计算程序
