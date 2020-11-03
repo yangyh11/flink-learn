@@ -1,4 +1,4 @@
-package com.yangyh.flink.java.demo01.wordcount;
+package com.yangyh.flink.java.sample.wordcount;
 
 /**
  * @description:
