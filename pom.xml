@@ -24,7 +24,7 @@
         <lombok.version>1.18.4</lombok.version>
         <fastjson.version>1.2.62</fastjson.version>
         <commons-dbcp.version>2.1.1</commons-dbcp.version>
-        <mysql-connector.version>8.0.23</mysql-connector.version>
+        <mysql-connector.version>8.0.28</mysql-connector.version>
         <scala.binary.version>2.11</scala.binary.version>
         <scala.version>2.11.12</scala.version>
         <flink.version>1.13.6</flink.version>
